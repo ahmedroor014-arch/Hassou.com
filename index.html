@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة تعلم اللهجات الفرنسية</title>
+    <title>لعبة تعلم اللهجات الفرنسية - Les Accents</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
         :root {
             --primary-color: #0084ff;
             --bg-color: #f0f2f5;
-            --chat-bg: #ffffff;
-            --bot-msg-bg: #e4e6eb;
-            --user-msg-bg: #0084ff;
-            --user-msg-text: #ffffff;
-            --correct-color: #2ecc71;
-            --wrong-color: #e74c3c;
+            --bot-bubble: #e4e6eb;
+            --user-bubble: #0084ff;
+            --text-bot: #050505;
+            --text-user: #ffffff;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
             margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -27,27 +28,27 @@
             overflow: hidden;
         }
 
-        /* حاوية اللعبة (شكل الهاتف) */
         #game-container {
             width: 100%;
             max-width: 450px;
-            height: 100%;
-            max-height: 800px;
-            background-color: var(--chat-bg);
+            height: 95vh;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
             position: relative;
         }
 
-        /* الرأس */
+        /* Header */
         header {
-            background-color: #ffffff;
+            background: #fff;
             padding: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #ddd;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             z-index: 10;
         }
 
@@ -57,129 +58,132 @@
             color: #333;
         }
 
-        header .score {
+        .score-board {
             font-weight: bold;
             color: var(--primary-color);
-        }
-
-        #restart-btn {
-            background: none;
-            border: 1px solid #ccc;
+            background: #e7f3ff;
             padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: 0.3s;
-        }
-        #restart-btn:hover {
-            background: #eee;
+            border-radius: 12px;
+            font-size: 14px;
         }
 
-        /* منطقة الدردشة */
-        #chat-area {
+        /* Chat Area */
+        #chat-box {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             scroll-behavior: smooth;
         }
 
         .message {
             max-width: 80%;
-            padding: 10px 15px;
+            padding: 12px 16px;
             border-radius: 18px;
             font-size: 15px;
-            line-height: 1.4;
+            line-height: 1.5;
             position: relative;
             animation: popIn 0.3s ease-out;
+            word-wrap: break-word;
         }
 
         @keyframes popIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        .bot-message {
-            background-color: var(--bot-msg-bg);
-            color: #050505;
+        .bot-msg {
             align-self: flex-start;
-            border-bottom-right-radius: 18px;
-            border-bottom-left-radius: 4px;
+            background-color: var(--bot-bubble);
+            color: var(--text-bot);
+            border-bottom-right-radius: 4px; /* RTL flip logic applies visually */
+        }
+        
+        /* Fix for RTL border radius visual logic */
+        :dir(rtl) .bot-msg { border-bottom-right-radius: 18px; border-bottom-left-radius: 4px; }
+        :dir(rtl) .user-msg { border-bottom-left-radius: 18px; border-bottom-right-radius: 4px; }
+
+        .user-msg {
+            align-self: flex-end;
+            background-color: var(--user-bubble);
+            color: var(--text-user);
         }
 
-        .user-message {
-            background-color: var(--user-msg-bg);
-            color: var(--user-msg-text);
-            align-self: flex-end;
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 4px;
-            text-align: left; /* الفرنسية من اليسار */
+        .lesson-card {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Roboto', sans-serif; /* French text looks better */
+            font-size: 14px;
+            white-space: pre-line;
+            text-align: left;
             direction: ltr;
         }
 
-        .feedback-correct {
-            border: 2px solid var(--correct-color);
-        }
-        .feedback-wrong {
-            border: 2px solid var(--wrong-color);
-        }
-
-        /* منطقة الإدخال */
-        #input-area {
+        /* Controls Area */
+        #controls {
             padding: 15px;
-            background-color: #fff;
+            background: #fff;
             border-top: 1px solid #ddd;
             display: flex;
             gap: 10px;
             justify-content: center;
             align-items: center;
+            min-height: 60px;
         }
 
-        .accent-btn {
-            flex: 1;
-            padding: 15px;
-            font-size: 24px;
-            background-color: var(--primary-color);
-            color: white;
+        .btn {
             border: none;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
             cursor: pointer;
-            transition: transform 0.1s, background 0.3s;
-            font-family: sans-serif;
-        }
-
-        .accent-btn:active {
-            transform: scale(0.95);
-        }
-
-        .accent-btn:hover {
-            background-color: #006bcf;
-        }
-
-        .accent-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* مؤشر الكتابة */
-        .typing-indicator {
-            font-style: italic;
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 5px;
-            display: none;
-            align-self: flex-start;
-            margin-right: 15px;
-        }
-
-        /* تنسيق النصوص الفرنسية داخل الرسائل */
-        .fr-text {
-            font-family: 'Arial', sans-serif;
+            transition: transform 0.1s, background 0.2s;
+            font-family: 'Tajawal', sans-serif;
             font-weight: bold;
-            direction: ltr;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .btn-primary { background: var(--primary-color); color: white; width: 100%; }
+        .btn-accent { 
+            background: #f0f2f5; 
+            color: #333; 
+            font-family: 'Roboto', sans-serif; 
+            font-size: 20px;
+            min-width: 60px;
+        }
+        .btn-accent:hover { background: #e4e6eb; }
+        
+        .hidden { display: none !important; }
+
+        /* Typing Indicator */
+        .typing {
+            align-self: flex-start;
+            background: var(--bot-bubble);
+            padding: 10px 15px;
+            border-radius: 18px;
+            display: none;
+        }
+        .dot {
+            height: 8px;
+            width: 8px;
+            background-color: #999;
+            border-radius: 50%;
             display: inline-block;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
 
     </style>
@@ -188,195 +192,193 @@
 
 <div id="game-container">
     <header>
-        <button id="restart-btn" onclick="restartGame()">إعادة البدء</button>
-        <h1>Professeur Français</h1>
-        <div class="score">النقاط: <span id="score-val">0</span></div>
+        <h1>🇫🇷 معلم الفرنسية</h1>
+        <div class="score-board">النقاط: <span id="score">0</span></div>
     </header>
 
-    <div id="chat-area">
-        <!-- الرسائل ستظهر هنا -->
+    <div id="chat-box">
+        <!-- Messages will appear here -->
+        <div class="typing" id="typing-indicator">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
     </div>
-    <div class="typing-indicator" id="typing-indicator">المعلم يكتب...</div>
 
-    <div id="input-area">
-        <button class="accent-btn" onclick="handleInput('é')">é</button>
-        <button class="accent-btn" onclick="handleInput('è')">è</button>
-        <button class="accent-btn" onclick="handleInput('ê')">ê</button>
+    <div id="controls">
+        <!-- Dynamic controls based on game state -->
+        <button id="start-btn" class="btn btn-primary" onclick="startGame()">ابدأ الدرس</button>
+        
+        <div id="game-controls" class="hidden" style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+            <button class="btn btn-accent" onclick="handleAnswer('é')">é</button>
+            <button class="btn btn-accent" onclick="handleAnswer('è')">è</button>
+            <button class="btn btn-accent" onclick="handleAnswer('ê')">ê</button>
+        </div>
+
+        <button id="restart-btn" class="btn btn-primary hidden" onclick="resetGame()">إعادة المحاولة ↻</button>
     </div>
 </div>
 
 <script>
-    // بيانات اللعبة والمحتوى
-    const lessonContent = [
-        "مرحباً! أنا معلمك الفرنسي. سأعلمك اليوم قواعد اللهجات (Les accents).",
-        "1) Accent Aigu (é): توضع عادة على حرف e لتعطي صوتاً حاداً. <br>مثال: <span class='fr-text'>café - école</span>.",
-        "2) Accent Grave (è): توضع لتعطي صوتاً مفتوحاً وعميقاً. <br>مثال: <span class='fr-text'>père - mère - frère</span>.",
-        "3) Accent Circonflexe (ê): توضع أحياناً للدلالة على حرف محذوف قديماً. <br>مثال: <span class='fr-text'>forêt - bête - tête</span>.",
-        "هل أنت مستعد؟ سأعطيك كلمات ناقصة وعليك اختيار العلامة الصحيحة!"
-    ];
+    // Game Data based on user request
+    const lessonText = `L'accent est un signe que l'on place sur une voyelle pour en indiquer la prononciation.
+    
+    1) Accent Aigu (é)
+    Ex: café - école.
 
-    // بنك الأسئلة
+    2) Accent Grave (è)
+    Ex: père - mère - frère
+
+    3) Accent Circonflexe (ê)
+    Ex: forêt - bête - tête`;
+
     const questions = [
-        { word: "caf_", answer: "é", full: "café" },
-        { word: "p_re", answer: "è", full: "père" },
-        { word: "for_t", answer: "ê", full: "forêt" },
-        { word: "_cole", answer: "é", full: "école" },
-        { word: "m_re", answer: "è", full: "mère" },
-        { word: "b_te", answer: "ê", full: "bête" },
-        { word: "fr_re", answer: "è", full: "frère" },
-        { word: "t_te", answer: "ê", full: "tête" },
-        { word: "ét_", answer: "é", full: "été" }, // Extra
-        { word: "tr_s", answer: "è", full: "très" } // Extra
+        { word: "caf_", answer: "é", full: "café", type: "Accent Aigu" },
+        { word: "p_re", answer: "è", full: "père", type: "Accent Grave" },
+        { word: "for_t", answer: "ê", full: "forêt", type: "Accent Circonflexe" },
+        { word: "_cole", answer: "é", full: "école", type: "Accent Aigu" },
+        { word: "m_re", answer: "è", full: "mère", type: "Accent Grave" },
+        { word: "b_te", answer: "ê", full: "bête", type: "Accent Circonflexe" },
+        { word: "fr_re", answer: "è", full: "frère", type: "Accent Grave" },
+        { word: "t_te", answer: "ê", full: "tête", type: "Accent Circonflexe" }
     ];
 
+    // Game State
     let currentQuestionIndex = 0;
     let score = 0;
-    let isWaitingForAnswer = false;
-    let shuffledQuestions = [];
+    let isTyping = false;
 
-    const chatArea = document.getElementById('chat-area');
-    const scoreVal = document.getElementById('score-val');
+    // DOM Elements
+    const chatBox = document.getElementById('chat-box');
     const typingIndicator = document.getElementById('typing-indicator');
-    const buttons = document.querySelectorAll('.accent-btn');
+    const scoreEl = document.getElementById('score');
+    const startBtn = document.getElementById('start-btn');
+    const gameControls = document.getElementById('game-controls');
+    const restartBtn = document.getElementById('restart-btn');
 
-    // دالة لخلط المصفوفة (عشوائية الأسئلة)
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    // Helper: Scroll to bottom
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Helper: Add Message
+    function addMessage(text, sender, isLesson = false) {
+        const div = document.createElement('div');
+        div.classList.add('message');
+        div.classList.add(sender === 'bot' ? 'bot-msg' : 'user-msg');
+        
+        if (isLesson) {
+            div.innerHTML = `<div class="lesson-card">${text}</div>`;
+        } else {
+            div.textContent = text;
         }
-        return array;
-    }
-
-    // إضافة رسالة للشات
-    function addMessage(text, sender, type = '') {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message');
-        msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
         
-        if (type === 'correct') msgDiv.classList.add('feedback-correct');
-        if (type === 'wrong') msgDiv.classList.add('feedback-wrong');
-
-        msgDiv.innerHTML = text;
-        chatArea.appendChild(msgDiv);
-        chatArea.scrollTop = chatArea.scrollHeight;
+        // Insert before typing indicator
+        chatBox.insertBefore(div, typingIndicator);
+        scrollToBottom();
     }
 
-    // محاكاة كتابة البوت
-    function botSpeak(text, delay = 1000, callback = null) {
+    // Bot Thinking Simulation
+    function botSpeak(text, delay = 800, isLesson = false, callback = null) {
+        isTyping = true;
         typingIndicator.style.display = 'block';
-        chatArea.scrollTop = chatArea.scrollHeight;
-        
+        scrollToBottom();
+
         setTimeout(() => {
             typingIndicator.style.display = 'none';
-            addMessage(text, 'bot');
+            addMessage(text, 'bot', isLesson);
+            isTyping = false;
             if (callback) callback();
         }, delay);
     }
 
-    // بدء اللعبة
-    function initGame() {
-        chatArea.innerHTML = '';
-        score = 0;
-        scoreVal.innerText = score;
-        currentQuestionIndex = 0;
-        shuffledQuestions = shuffleArray([...questions]); // نسخ وخلط
-        setButtonsState(false); // تعطيل الأزرار أثناء الشرح
-
-        // سلسلة الشرح
-        let delay = 500;
-        lessonContent.forEach((msg, index) => {
-            setTimeout(() => {
-                botSpeak(msg, 1000, () => {
-                    // إذا كانت آخر رسالة شرح، ابدأ الأسئلة
-                    if (index === lessonContent.length - 1) {
-                        setTimeout(askQuestion, 1000);
-                    }
+    // Start Game Flow
+    function startGame() {
+        startBtn.classList.add('hidden');
+        
+        botSpeak("مرحباً! أنا معلمك الآلي. لنبدأ بمراجعة الدرس أولاً.", 500, false, () => {
+            botSpeak(lessonText, 1500, true, () => {
+                botSpeak("هل أنت مستعد للاختبار؟ أكمل الكلمات الناقصة بالـ Accent الصحيحة.", 1000, false, () => {
+                    askQuestion();
                 });
-            }, delay);
-            delay += 2500; // وقت بين كل رسالة والأخرى
+            });
         });
     }
 
-    // طرح سؤال
+    // Ask Question
     function askQuestion() {
-        if (currentQuestionIndex >= shuffledQuestions.length) {
+        if (currentQuestionIndex >= questions.length) {
             endGame();
             return;
         }
 
-        const q = shuffledQuestions[currentQuestionIndex];
-        const displayWord = q.word.replace('_', '❓');
-        
-        botSpeak(`أكمل الكلمة التالية: <br><h2 class="fr-text" style="margin:5px 0; color:#0084ff">${displayWord}</h2>`, 800, () => {
-            isWaitingForAnswer = true;
-            setButtonsState(true);
-        });
-    }
-
-    // معالجة إدخال المستخدم
-    function handleInput(accent) {
-        if (!isWaitingForAnswer) return;
-
-        isWaitingForAnswer = false;
-        setButtonsState(false);
-
-        // إظهار إجابة المستخدم
-        addMessage(`<span class="fr-text" style="font-size:20px">${accent}</span>`, 'user');
-
-        const currentQ = shuffledQuestions[currentQuestionIndex];
-        
-        // التحقق من الإجابة
+        const q = questions[currentQuestionIndex];
+        gameControls.classList.remove('hidden');
+        // Show question with delay
         setTimeout(() => {
-            if (accent === currentQ.answer) {
-                score++;
-                scoreVal.innerText = score;
-                botSpeak(`✅ أحسنت! الكلمة هي: <span class="fr-text">${currentQ.full}</span>`, 600, () => {
-                    currentQuestionIndex++;
-                    askQuestion();
-                });
-            } else {
-                botSpeak(`❌ خطأ. الإجابة الصحيحة هي <b>${currentQ.answer}</b>.<br>الكلمة: <span class="fr-text">${currentQ.full}</span>`, 800, () => {
-                    currentQuestionIndex++;
-                    askQuestion();
-                });
-            }
+            botSpeak(`أكمل الكلمة:  ${q.word}`, 600);
         }, 500);
     }
 
-    // حالة الأزرار
-    function setButtonsState(enabled) {
-        buttons.forEach(btn => {
-            btn.disabled = !enabled;
-            btn.style.opacity = enabled ? '1' : '0.6';
+    // Handle User Input
+    function handleAnswer(accent) {
+        if (isTyping) return; // Prevent clicking while bot is talking
+
+        // User message
+        addMessage(accent, 'user');
+        gameControls.classList.add('hidden'); // Hide buttons while processing
+
+        const q = questions[currentQuestionIndex];
+        
+        if (accent === q.answer) {
+            score += 10;
+            scoreEl.textContent = score;
+            botSpeak(`✅ أحسنت! الإجابة صحيحة: ${q.full}`, 600, false, () => {
+                nextStep();
+            });
+        } else {
+            botSpeak(`❌ خطأ. الصحيح هو (${q.answer}) في كلمة ${q.full}.`, 800, false, () => {
+                nextStep();
+            });
+        }
+    }
+
+    function nextStep() {
+        currentQuestionIndex++;
+        askQuestion();
+    }
+
+    // End Game
+    function endGame() {
+        let feedback = "";
+        if (score === questions.length * 10) feedback = "ممتاز! علامة كاملة 🏆";
+        else if (score > (questions.length * 10) / 2) feedback = "جيد جداً! 👍";
+        else feedback = "تحتاج لمزيد من المراجعة 📚";
+
+        botSpeak(`انتهى الاختبار! نتيجتك هي ${score} من ${questions.length * 10}.\n${feedback}`, 1000, false, () => {
+            restartBtn.classList.remove('hidden');
         });
     }
 
-    // نهاية اللعبة
-    function endGame() {
-        let finalMsg = `انتهت اللعبة! نتيجتك: ${score} من ${shuffledQuestions.length}.`;
-        if (score === shuffledQuestions.length) finalMsg += " 🌟 ممتاز!";
-        else if (score > shuffledQuestions.length / 2) finalMsg += " 👍 جيد جداً.";
-        else finalMsg += " حاول مرة أخرى لتحسين مستواك.";
-
-        botSpeak(finalMsg, 500);
-        botSpeak("اضغط على 'إعادة البدء' في الأعلى للعب مجدداً.", 1000);
+    // Restart
+    function resetGame() {
+        chatBox.innerHTML = ''; // Clear chat
+        chatBox.appendChild(typingIndicator); // Add typing indicator back
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        scoreEl.textContent = '0';
+        
+        restartBtn.classList.add('hidden');
+        gameControls.classList.add('hidden');
+        
+        // Start directly with quiz or ask if they want lesson again? 
+        // Let's start quiz directly to be faster
+        botSpeak("أهلاً بك مجدداً! لنبدأ الاختبار مرة أخرى.", 500, false, () => {
+             askQuestion();
+        });
     }
-
-    // إعادة التشغيل
-    function restartGame() {
-        // إيقاف أي مؤقتات معلقة (بسيط)
-        let id = window.setTimeout(function() {}, 0);
-        while (id--) {
-            window.clearTimeout(id);
-        }
-        initGame();
-    }
-
-    // تشغيل عند التحميل
-    window.onload = initGame;
 
 </script>
-
 </body>
 </html>
+        
+       
