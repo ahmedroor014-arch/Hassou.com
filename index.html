@@ -1,131 +1,382 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سوق Hassou</title>
-  <style>
-    body {
-      font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(to bottom, #d4ed91, #f7f78a);
-      margin: 0; padding: 0;
-      text-align: center;
-    }
-    header {
-      background: #388e3c;
-      color: white;
-      padding: 20px;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .product {
-      background: white;
-      margin: 20px auto;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    /* --- تعديل جديد: تنسيق الصور --- */
-    .product img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-    .product h2 {
-      color: #388e3c;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 15px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .cart-btn {
-      background: #ff9800;
-      color: white;
-    }
-    .order-btn {
-      background: #388e3c;
-      color: white;
-    }
-    form {
-      margin-top: 15px;
-      display: none;
-    }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تعلم اللهجات الفرنسية</title>
+    <style>
+        :root {
+            --primary-color: #0084ff;
+            --bg-color: #f0f2f5;
+            --chat-bg: #ffffff;
+            --bot-msg-bg: #e4e6eb;
+            --user-msg-bg: #0084ff;
+            --user-msg-text: #ffffff;
+            --correct-color: #2ecc71;
+            --wrong-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* حاوية اللعبة (شكل الهاتف) */
+        #game-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            max-height: 800px;
+            background-color: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* الرأس */
+        header {
+            background-color: #ffffff;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        header .score {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        #restart-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        #restart-btn:hover {
+            background: #eee;
+        }
+
+        /* منطقة الدردشة */
+        #chat-area {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            position: relative;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            background-color: var(--bot-msg-bg);
+            color: #050505;
+            align-self: flex-start;
+            border-bottom-right-radius: 18px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background-color: var(--user-msg-bg);
+            color: var(--user-msg-text);
+            align-self: flex-end;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 4px;
+            text-align: left; /* الفرنسية من اليسار */
+            direction: ltr;
+        }
+
+        .feedback-correct {
+            border: 2px solid var(--correct-color);
+        }
+        .feedback-wrong {
+            border: 2px solid var(--wrong-color);
+        }
+
+        /* منطقة الإدخال */
+        #input-area {
+            padding: 15px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .accent-btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.3s;
+            font-family: sans-serif;
+        }
+
+        .accent-btn:active {
+            transform: scale(0.95);
+        }
+
+        .accent-btn:hover {
+            background-color: #006bcf;
+        }
+
+        .accent-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* مؤشر الكتابة */
+        .typing-indicator {
+            font-style: italic;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: none;
+            align-self: flex-start;
+            margin-right: 15px;
+        }
+
+        /* تنسيق النصوص الفرنسية داخل الرسائل */
+        .fr-text {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            direction: ltr;
+            display: inline-block;
+        }
+
+    </style>
 </head>
 <body>
-  <header>🛒 سوق Hassou الإلكتروني</header>
 
-  <div class="product">
-    <!-- 👇 ضع اسم صورة المنتج الأول هنا 👇 -->
-    <img src="images/solar-panel.jpg" alt="لوح طاقة شمسية">
-    <h2>لوح طاقة شمسية</h2>
-    <p>السعر: 600 درهم</p>
-    <button class="btn cart-btn" onclick="showForm('طاقة شمسية')">➕ أضف إلى السلة</button>
-  </div>
+<div id="game-container">
+    <header>
+        <button id="restart-btn" onclick="restartGame()">إعادة البدء</button>
+        <h1>Professeur Français</h1>
+        <div class="score">النقاط: <span id="score-val">0</span></div>
+    </header>
 
-  <div class="product">
-    <!-- 👇 ضع اسم صورة المنتج الثاني هنا 👇 -->
-    <img src="images/solar-light.jpg" alt="كشاف شمسي">
-    <h2>كشاف شمسي</h2>
-    <p>السعر: 700 درهم</p>
-    <button class="btn cart-btn" onclick="showForm('كشاف شمسي')">➕ أضف إلى السلة</button>
-  </div>
+    <div id="chat-area">
+        <!-- الرسائل ستظهر هنا -->
+    </div>
+    <div class="typing-indicator" id="typing-indicator">المعلم يكتب...</div>
 
-  <div class="product">
-    <!-- 👇 ضع اسم صورة المنتج الثالث هنا 👇 -->
-    <img src="images/juicer.jpg" alt="عصارة كهربائية">
-    <h2>عصارة كهربائية</h2>
-    <p>السعر: 189 درهم</p>
-    <button class="btn cart-btn" onclick="showForm('عصر كهربائي')">➕ أضف إلى السلة</button>
-  </div>
+    <div id="input-area">
+        <button class="accent-btn" onclick="handleInput('é')">é</button>
+        <button class="accent-btn" onclick="handleInput('è')">è</button>
+        <button class="accent-btn" onclick="handleInput('ê')">ê</button>
+    </div>
+</div>
 
-  <form id="orderForm">
-    <h3>📋 أرسل معلوماتك للطلب:</h3>
-    <input type="text" id="name" placeholder="الاسم الكامل" required><br>
-    <input type="text" id="address" placeholder="العنوان" required><br>
-    <input type="email" id="email" placeholder="البريد الإلكتروني" required><br>
-    <button type="button" class="btn order-btn" onclick="sendOrder()">✅ اطلب الآن</button>
-  </form>
+<script>
+    // بيانات اللعبة والمحتوى
+    const lessonContent = [
+        "مرحباً! أنا معلمك الفرنسي. سأعلمك اليوم قواعد اللهجات (Les accents).",
+        "1) Accent Aigu (é): توضع عادة على حرف e لتعطي صوتاً حاداً. <br>مثال: <span class='fr-text'>café - école</span>.",
+        "2) Accent Grave (è): توضع لتعطي صوتاً مفتوحاً وعميقاً. <br>مثال: <span class='fr-text'>père - mère - frère</span>.",
+        "3) Accent Circonflexe (ê): توضع أحياناً للدلالة على حرف محذوف قديماً. <br>مثال: <span class='fr-text'>forêt - bête - tête</span>.",
+        "هل أنت مستعد؟ سأعطيك كلمات ناقصة وعليك اختيار العلامة الصحيحة!"
+    ];
 
-  <script>
-    let selectedProduct = "";
+    // بنك الأسئلة
+    const questions = [
+        { word: "caf_", answer: "é", full: "café" },
+        { word: "p_re", answer: "è", full: "père" },
+        { word: "for_t", answer: "ê", full: "forêt" },
+        { word: "_cole", answer: "é", full: "école" },
+        { word: "m_re", answer: "è", full: "mère" },
+        { word: "b_te", answer: "ê", full: "bête" },
+        { word: "fr_re", answer: "è", full: "frère" },
+        { word: "t_te", answer: "ê", full: "tête" },
+        { word: "ét_", answer: "é", full: "été" }, // Extra
+        { word: "tr_s", answer: "è", full: "très" } // Extra
+    ];
 
-    function showForm(product) {
-      selectedProduct = product;
-      document.getElementById("orderForm").style.display = "block";
-      window.scrollTo(0, document.body.scrollHeight);
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let isWaitingForAnswer = false;
+    let shuffledQuestions = [];
+
+    const chatArea = document.getElementById('chat-area');
+    const scoreVal = document.getElementById('score-val');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const buttons = document.querySelectorAll('.accent-btn');
+
+    // دالة لخلط المصفوفة (عشوائية الأسئلة)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
-    function sendOrder() {
-      const name = document.getElementById("name").value;
-      const address = document.getElementById("address").value;
-      const email = document.getElementById("email").value;
+    // إضافة رسالة للشات
+    function addMessage(text, sender, type = '') {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message');
+        msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+        
+        if (type === 'correct') msgDiv.classList.add('feedback-correct');
+        if (type === 'wrong') msgDiv.classList.add('feedback-wrong');
 
-      if (name && address && email) {
-        const phone = "212607072825"; // تأكد من أن هذا هو الرقم الصحيح
-        const message = `طلب جديد 🛒%0Aالمنتج: ${selectedProduct}%0Aالاسم: ${name}%0Aالعنوان: ${address}%0Aالبريد: ${email}`;
-        const url = `https://wa.me/${phone}?text=${message}`;
-        window.open(url, "_blank");
-      } else {
-        alert("الرجاء إدخال جميع المعلومات!");
-      }
+        msgDiv.innerHTML = text;
+        chatArea.appendChild(msgDiv);
+        chatArea.scrollTop = chatArea.scrollHeight;
     }
-  </script>
+
+    // محاكاة كتابة البوت
+    function botSpeak(text, delay = 1000, callback = null) {
+        typingIndicator.style.display = 'block';
+        chatArea.scrollTop = chatArea.scrollHeight;
+        
+        setTimeout(() => {
+            typingIndicator.style.display = 'none';
+            addMessage(text, 'bot');
+            if (callback) callback();
+        }, delay);
+    }
+
+    // بدء اللعبة
+    function initGame() {
+        chatArea.innerHTML = '';
+        score = 0;
+        scoreVal.innerText = score;
+        currentQuestionIndex = 0;
+        shuffledQuestions = shuffleArray([...questions]); // نسخ وخلط
+        setButtonsState(false); // تعطيل الأزرار أثناء الشرح
+
+        // سلسلة الشرح
+        let delay = 500;
+        lessonContent.forEach((msg, index) => {
+            setTimeout(() => {
+                botSpeak(msg, 1000, () => {
+                    // إذا كانت آخر رسالة شرح، ابدأ الأسئلة
+                    if (index === lessonContent.length - 1) {
+                        setTimeout(askQuestion, 1000);
+                    }
+                });
+            }, delay);
+            delay += 2500; // وقت بين كل رسالة والأخرى
+        });
+    }
+
+    // طرح سؤال
+    function askQuestion() {
+        if (currentQuestionIndex >= shuffledQuestions.length) {
+            endGame();
+            return;
+        }
+
+        const q = shuffledQuestions[currentQuestionIndex];
+        const displayWord = q.word.replace('_', '❓');
+        
+        botSpeak(`أكمل الكلمة التالية: <br><h2 class="fr-text" style="margin:5px 0; color:#0084ff">${displayWord}</h2>`, 800, () => {
+            isWaitingForAnswer = true;
+            setButtonsState(true);
+        });
+    }
+
+    // معالجة إدخال المستخدم
+    function handleInput(accent) {
+        if (!isWaitingForAnswer) return;
+
+        isWaitingForAnswer = false;
+        setButtonsState(false);
+
+        // إظهار إجابة المستخدم
+        addMessage(`<span class="fr-text" style="font-size:20px">${accent}</span>`, 'user');
+
+        const currentQ = shuffledQuestions[currentQuestionIndex];
+        
+        // التحقق من الإجابة
+        setTimeout(() => {
+            if (accent === currentQ.answer) {
+                score++;
+                scoreVal.innerText = score;
+                botSpeak(`✅ أحسنت! الكلمة هي: <span class="fr-text">${currentQ.full}</span>`, 600, () => {
+                    currentQuestionIndex++;
+                    askQuestion();
+                });
+            } else {
+                botSpeak(`❌ خطأ. الإجابة الصحيحة هي <b>${currentQ.answer}</b>.<br>الكلمة: <span class="fr-text">${currentQ.full}</span>`, 800, () => {
+                    currentQuestionIndex++;
+                    askQuestion();
+                });
+            }
+        }, 500);
+    }
+
+    // حالة الأزرار
+    function setButtonsState(enabled) {
+        buttons.forEach(btn => {
+            btn.disabled = !enabled;
+            btn.style.opacity = enabled ? '1' : '0.6';
+        });
+    }
+
+    // نهاية اللعبة
+    function endGame() {
+        let finalMsg = `انتهت اللعبة! نتيجتك: ${score} من ${shuffledQuestions.length}.`;
+        if (score === shuffledQuestions.length) finalMsg += " 🌟 ممتاز!";
+        else if (score > shuffledQuestions.length / 2) finalMsg += " 👍 جيد جداً.";
+        else finalMsg += " حاول مرة أخرى لتحسين مستواك.";
+
+        botSpeak(finalMsg, 500);
+        botSpeak("اضغط على 'إعادة البدء' في الأعلى للعب مجدداً.", 1000);
+    }
+
+    // إعادة التشغيل
+    function restartGame() {
+        // إيقاف أي مؤقتات معلقة (بسيط)
+        let id = window.setTimeout(function() {}, 0);
+        while (id--) {
+            window.clearTimeout(id);
+        }
+        initGame();
+    }
+
+    // تشغيل عند التحميل
+    window.onload = initGame;
+
+</script>
+
 </body>
 </html>
