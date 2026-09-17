@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>متجري | منتج مميز</title>
+  <style>
+    :root {
+      --primary: #176b5b;
+      --primary-dark: #0e4b40;
+      --accent: #e85d04;
+      --cream: #fffaf3;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e8e5df;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+      line-height: 1.7;
+    }
+
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand { font-size: 1.35rem; font-weight: 800; color: var(--primary); }
+    .cart-button {
+      border: 0;
+      color: var(--white);
+      background: var(--primary);
+      border-radius: 999px;
+      padding: 11px 18px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: .2s ease;
+    }
+    .cart-button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    #cart-count {
+      display: inline-grid;
+      place-items: center;
+      min-width: 23px;
+      height: 23px;
+      margin-right: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: .85rem;
+    }
+
+    main { max-width: 1180px; margin: auto; padding: 55px 24px 80px; }
+    .product-card {
+      background: var(--white);
+      border-radius: 28px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      box-shadow: 0 16px 45px rgba(31, 41, 55, .08);
+    }
+    .product-image { min-height: 500px; background: #f2eee7; position: relative; padding-bottom: 92px; }
+    .product-image > img { width: 100%; height: 100%; min-height: 500px; object-fit: cover; display: block; }
+    .thumbnail-list { position: absolute; right: 20px; bottom: 18px; left: 20px; display: flex; justify-content: center; gap: 10px; }
+    .thumbnail { width: 68px; height: 58px; padding: 3px; border: 2px solid transparent; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,.9); cursor: pointer; }
+    .thumbnail.active, .thumbnail:hover { border-color: var(--primary); }
+    .thumbnail img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+    .sale-badge {
+      position: absolute;
+      top: 22px;
+      right: 22px;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      padding: 8px 15px;
+      font-weight: bold;
+    }
+    .details { padding: 55px 48px; display: flex; flex-direction: column; justify-content: center; }
+    .eyebrow { color: var(--primary); font-weight: bold; margin: 0 0 8px; }
+    h1 { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.2; margin: 0 0 18px; }
+    .description { color: var(--muted); max-width: 480px; margin: 0 0 28px; }
+    .prices { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; flex-wrap: wrap; }
+    .current-price { color: var(--primary); font-size: 2rem; font-weight: 800; }
+    .old-price { color: #9ca3af; text-decoration: line-through; font-size: 1.1rem; }
+    .discount { color: var(--accent); font-weight: bold; font-size: .95rem; }
+    .quantity { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .quantity input { width: 70px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; text-align: center; font-size: 1rem; }
+    .add-button {
+      border: 0; border-radius: 12px; padding: 15px 22px; cursor: pointer;
+      color: var(--white); background: var(--primary); font-size: 1.05rem; font-weight: bold;
+      transition: .2s ease;
+    }
+    .add-button:hover { background: var(--primary-dark); }
+    .message { color: var(--primary); min-height: 28px; margin: 14px 0 0; font-weight: bold; }
+
+    .cart-panel {
+      max-width: 1180px; margin: 24px auto 0; background: var(--white); border-radius: 20px;
+      padding: 24px; box-shadow: 0 10px 30px rgba(31, 41, 55, .07); display: none;
+    }
+    .cart-panel.visible { display: block; }
+    .cart-panel h2 { margin-top: 0; }
+    .cart-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 1px solid var(--line); padding: 12px 0; }
+    .remove-button { border: 0; background: transparent; color: #b42318; cursor: pointer; }
+    .cart-total { text-align: left; font-size: 1.2rem; font-weight: bold; margin-top: 18px; }
+    footer { text-align: center; color: var(--muted); padding: 24px; }
+
+    @media (max-width: 760px) {
+      .nav { padding: 13px 16px; }
+      main { padding: 28px 14px 50px; }
+      .product-card { grid-template-columns: 1fr; }
+      .product-image { min-height: 320px; height: 390px; }
+      .product-image > img { min-height: 320px; height: 320px; }
+      .details { padding: 32px 24px; }
+      .cart-row { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="brand">متجري</div>
+      <button class="cart-button" id="cart-toggle" type="button" aria-expanded="false">
+        🛒 سلة البيع <span id="cart-count">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="product-card" aria-label="تفاصيل المنتج">
+      <div class="product-image">
+        <span class="sale-badge">خصم 20%</span>
+        <img id="main-product-image" src="https://i.ibb.co/4RR1KJLr/Captura-de-pantalla-2026-09-17-205658.png" alt="صورة المنتج" />
+        <div class="thumbnail-list" aria-label="صور المنتج الإضافية">
+          <button class="thumbnail active" type="button" data-image="https://i.ibb.co/4RR1KJLr/Captura-de-pantalla-2026-09-17-205658.png" aria-label="عرض الصورة الأولى">
+            <img src="https://i.ibb.co/4RR1KJLr/Captura-de-pantalla-2026-09-17-205658.png" alt="مصغرة الصورة الأولى" />
+          </button>
+          <button class="thumbnail" type="button" data-image="https://i.ibb.co/jZWPRKjK/Captura-de-pantalla-2026-09-17-210231.png" aria-label="عرض الصورة الثانية">
+            <img src="https://i.ibb.co/jZWPRKjK/Captura-de-pantalla-2026-09-17-210231.png" alt="مصغرة الصورة الثانية" />
+          </button>
+          <button class="thumbnail" type="button" data-image="https://i.ibb.co/pvzgYMtS/Captura-de-pantalla-2026-09-17-210720.png" aria-label="عرض الصورة الثالثة">
+            <img src="https://i.ibb.co/pvzgYMtS/Captura-de-pantalla-2026-09-17-210720.png" alt="مصغرة الصورة الثالثة" />
+          </button>
+        </div>
+      </div>
+      <div class="details">
+        <p class="eyebrow">عرض خاص لفترة محدودة</p>
+        <h1>منتجك المميز</h1>
+        <p class="description">اكتب هنا وصفًا مختصرًا وجذابًا للمنتج، واذكر أهم فوائده ومميزاته للزبون.</p>
+        <div class="prices">
+          <span class="current-price">2,000 درهم</span>
+          <span class="old-price">2,500 درهم</span>
+          <span class="discount">وفّر 500 درهم</span>
+        </div>
+        <div class="quantity">
+          <label for="quantity">الكمية:</label>
+          <input id="quantity" type="number" min="1" value="1" />
+        </div>
+        <button class="add-button" id="add-to-cart" type="button">أضف إلى سلة البيع</button>
+        <p class="message" id="message" role="status"></p>
+      </div>
+    </section>
+
+    <section class="cart-panel" id="cart-panel" aria-label="سلة البيع">
+      <h2>سلة البيع</h2>
+      <div id="cart-items"><p>السلة فارغة حاليًا.</p></div>
+      <div class="cart-total">المجموع: <span id="cart-total">0</span> درهم</div>
+    </section>
+  </main>
+
+  <footer>© 2026 متجري — جميع الحقوق محفوظة</footer>
+
+  <script>
+    const product = { name: 'منتجك المميز', price: 2000 };
+    let cart = [];
+
+    const count = document.getElementById('cart-count');
+    const panel = document.getElementById('cart-panel');
+    const items = document.getElementById('cart-items');
+    const total = document.getElementById('cart-total');
+    const message = document.getElementById('message');
+
+    document.querySelectorAll('.thumbnail').forEach((thumbnail) => {
+      thumbnail.addEventListener('click', () => {
+        document.getElementById('main-product-image').src = thumbnail.dataset.image;
+        document.querySelectorAll('.thumbnail').forEach((item) => item.classList.remove('active'));
+        thumbnail.classList.add('active');
+      });
+    });
+
+    function renderCart() {
+      const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+      count.textContent = quantity;
+      if (!cart.length) {
+        items.innerHTML = '<p>السلة فارغة حاليًا.</p>';
+        total.textContent = '0';
+        return;
+      }
+      items.innerHTML = cart.map((item, index) => `
+        <div class="cart-row">
+          <span>${item.name} × ${item.quantity}</span>
+          <strong>${(item.price * item.quantity).toLocaleString('ar-MA')} درهم</strong>
+          <button class="remove-button" type="button" onclick="removeItem(${index})">حذف</button>
+        </div>
+      `).join('');
+      total.textContent = cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString('ar-MA');
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    document.getElementById('add-to-cart').addEventListener('click', () => {
+      const quantity = Math.max(1, Number.parseInt(document.getElementById('quantity').value, 10) || 1);
+      const existing = cart.find(item => item.name === product.name);
+      if (existing) existing.quantity += quantity;
+      else cart.push({ ...product, quantity });
+      renderCart();
+      message.textContent = 'تمت إضافة المنتج إلى سلة البيع بنجاح.';
+    });
+
+    document.getElementById('cart-toggle').addEventListener('click', () => {
+      const visible = panel.classList.toggle('visible');
+      document.getElementById('cart-toggle').setAttribute('aria-expanded', visible);
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>
